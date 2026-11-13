@@ -1,0 +1,26 @@
+name: playstream
+
+services:
+  playstream:
+    build:
+      context: .
+      args:
+        GOPROXY: ${RELAY_GOPROXY:-https://proxy.golang.org}
+    init: true
+    restart: unless-stopped
+    environment:
+      RELAY_PASSWORD: "${RELAY_PASSWORD:?Set RELAY_PASSWORD in .env}"
+      RELAY_HOST_IP: "${RELAY_HOST_IP:-${RELAY_BIND_IP:-}}"
+    command:
+      - -bridge
+      - -config=/data/config.yaml
+      - -web=:8080
+      - -dns=:53
+      - -rtmp=:1935
+    ports:
+      - "${RELAY_BIND_IP:-0.0.0.0}:${RELAY_WEB_PORT:-0}:8080/tcp"
+      - "${RELAY_BIND_IP:-0.0.0.0}:53:53/udp"
+      - "${RELAY_BIND_IP:-0.0.0.0}:53:53/tcp"
+      - "${RELAY_BIND_IP:-0.0.0.0}:1935:1935/tcp"
+    volumes:
+      - ./data:/data

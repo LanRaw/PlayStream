@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f8f8fa" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#101113" media="(prefers-color-scheme: dark)">
+  <title>PlayStream</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#overview"><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>PlayStream<small>局域网直播接收器</small></span></a>
+    <nav id="navigation" aria-label="主导航"></nav>
+    <div class="sidebar-foot"><span class="dot waiting" id="connection-dot"></span><span id="connection-label">正在连接</span></div>
+  </aside>
+  <main id="page" aria-busy="true"><p class="loading">正在连接接收器…</p></main>
+  <dialog id="dialog" aria-labelledby="dialog-title"><form id="dialog-form"></form></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
