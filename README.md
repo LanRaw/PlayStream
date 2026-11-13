@@ -4,28 +4,38 @@ PlayStream 是通过 Docker Compose 部署的局域网服务，管理界面用�
 
 ## 使用条件
 
+- 宿主机需要运行 Docker 并能执行 `docker compose`。macOS 和 Windows 可用 Docker Desktop，Windows 需使用 Linux 容器。Linux 可用 Docker Engine 和 Compose 插件。Go 编译和 MediaMTX 由 Dockerfile 处理，宿主机无需单独安装。[Docker Compose 安装指南](https://docs.docker.com/compose/install/)
+- 当前通过源码构建镜像。首次部署时，Docker 需要能拉取 Docker Hub 上的 Go、Alpine 和 MediaMTX 基础镜像，并下载 Go 模块。默认使用 `proxy.golang.org` 下载模块，可以在 `.env` 里通过 `RELAY_GOPROXY` 更换模块镜像源。
 - PS5 已登录 PlayStation Network，并绑定开启了两步验证的 Twitch 账号。[PlayStation 开播指南](https://www.playstation.com/en-us/support/games/ps5-stream-gameplay-broadcast/) · [Twitch 开播排查](https://www.playstation.com/en-us/support/games/ps4-broadcast-and-share-play-troubleshooting/)
-- PS5 和运行接收器的电脑在同一局域网，PS5 能访问电脑的 DNS `53/UDP`、`53/TCP` 和 RTMP `1935/TCP`。接收器可用 Docker Compose 部署在 macOS、Linux 或使用 Linux 容器的 Windows。OBS 可以装在接收器电脑上，也可以装在局域网内另一台能访问接收器的电脑上。
+- PS5 和接收器电脑在同一局域网。宿主机的 `53/UDP`、`53/TCP` 和 `1935/TCP` 需可供容器使用，且能从 PS5 访问。OBS 可以装在接收器电脑上，也可以装在同一局域网内能访问接收器的另一台电脑上。
 - PS5 开播前需要访问 Twitch 的 HTTPS 接口，包括 `api.twitch.tv:443`。如果 PS5 用原本的网络设置就能正常开播，可以用直连方案。在本次中国大陆家庭宽带测试中，直连在 TLS 握手阶段失败。使用 **Mac 版 UU 主机加速**并关闭 Clash 后，已验证 PS5 能重新开播且中继能收流。随后也确认了 OBS 能播放中继的画面和声音。
 
 ## 启动接收器
 
-在项目目录里，从 `.env.example` 创建 `.env`，并在文件中填写自己的 `RELAY_PASSWORD`。已有 `.env` 时可以直接启动。
+先克隆仓库或下载源码，在项目目录运行以下命令。首次部署复制 `.env.example` 即可使用默认账号 `driver` 和密码 `gt1234567`。已有 `.env` 时跳过复制，保留自己的配置。在多人共用的局域网里，建议修改 `.env` 中的 `RELAY_PASSWORD`。
 
 macOS 和 Linux 可以运行启动脚本。脚本会读取电脑的局域网 IP，并打印管理地址。
 
 ```sh
+cp .env.example .env
 ./start.sh
 ```
 
-Windows 或希望直接使用 Compose 时，运行以下命令。用运行 Docker 的电脑的局域网 IPv4 和第二条命令返回的端口打开管理页，在「总览」点「刷新」。
+Windows 在 PowerShell 中运行以下命令。macOS 和 Linux 也可以复制 `.env` 后直接执行这两条 `docker compose` 命令。Compose 在本机完成构建并启动服务。
 
-```sh
+```powershell
+Copy-Item .env.example .env
 docker compose up -d --build
 docker compose port playstream 8080
 ```
 
-用用户名 `driver` 和 `.env` 中设置的密码登录。在「直播对象」里新建对象，例如别名为 `gt7_ps5`。第一个启用的对象会自动选中。需要换对象时点「切换」，新选择在下次 PS5 开播时生效。
+## 使用 PlayStream 管理页
+
+1. **打开管理页。** 打开启动脚本打印的地址。直接用 Compose 启动时，用电脑的局域网 IPv4 和 `docker compose port playstream 8080` 查到的端口访问，例如 `http://192.168.1.20:32769`。在浏览器弹窗中用 `driver` 和 `.env` 里的密码登录。
+2. **新建直播对象。** 打开「直播对象 → 新建」，「显示名称」可以填 `PS5`，「固定别名」可以填 `gt7_ps5`。保留「启用」并点「保存」。第一个启用的对象自动成为当前对象，状态为「就绪」。要换用其他对象，在对应卡片上点「切换」，下一次开播时生效。
+3. **设置 PS5。** 在「总览」查看「PS5 首选 DNS」。如果地址不对，用接收器电脑当前的局域网 IPv4 打开管理页，再点「刷新」。根据 PS5 能否直连 Twitch，按下面的 UU 或直连方案设置网络。
+4. **开播并复制地址。** 在 PS5 上启动 Twitch 直播。等「总览」的对象显示「接收中」后，点击 RTMP 地址旁的「复制」，按下文步骤粘贴到 OBS 的「媒体 → 输入」。
+5. **查看诊断。** 如果 PS5 显示直播中、管理页却没收到流，打开「诊断 → 开始检测」，在 45 秒内重新开播。页面会显示推流域名是否被重写、是否收到 RTMP 视频，以及固定地址是否可拉流。
 
 ## 方案一 · Mac 版 UU 主机加速
 
