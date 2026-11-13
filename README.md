@@ -2,6 +2,8 @@
 
 PlayStream 是通过 Docker Compose 部署的局域网服务，管理界面用浏览器打开。在 PS5 上用系统自带的 Twitch 功能开播，PlayStream 接收游戏画面和声音，为 OBS 提供固定的 RTMP 拉流地址。关闭管理网页后，接收服务仍会运行。
 
+**第一次使用？[从安装 Docker 开始看图文部署教程](docs/quick-start.md)**。教程覆盖 macOS、Windows、Linux，以及 PS5 网络和 OBS 设置。
+
 ## 使用条件
 
 - 宿主机需要运行 Docker 并能执行 `docker compose`。macOS 和 Windows 可用 Docker Desktop，Windows 需使用 Linux 容器。Linux 可用 Docker Engine 和 Compose 插件。Go 编译和 MediaMTX 由 Dockerfile 处理，宿主机无需单独安装。[Docker Compose 安装指南](https://docs.docker.com/compose/install/)
